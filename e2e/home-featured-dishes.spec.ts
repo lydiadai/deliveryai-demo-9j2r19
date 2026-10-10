@@ -132,7 +132,7 @@ test.describe('首页推荐菜移至桌面端首屏以下 - E2E 验收测试', (
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
     await attachScreenshot(page, testInfo, 'desktop-1280x720-homepage-first-screen')
 
-    await section.evaluate((node) => node.scrollIntoView())
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: '今日推荐' }), page)
     for (let index = 0; index < 3; index += 1) {
       await expectFullyInViewport(cards.nth(index), page)
@@ -160,7 +160,7 @@ test.describe('首页推荐菜移至桌面端首屏以下 - E2E 验收测试', (
     const cards = section.locator('article')
 
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
-    await section.evaluate((node) => node.scrollIntoView())
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: '今日推荐' }), page)
     await expectFullyInViewport(cards.first(), page)
     await expect(cards.first().locator('..')).toHaveCSS('overflow-x', 'auto')
@@ -204,7 +204,7 @@ test.describe('首页推荐菜移至桌面端首屏以下 - E2E 验收测试', (
     const cards = section.locator('article')
 
     await expectBelowViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
-    await section.evaluate((node) => node.scrollIntoView())
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
     expect(await cards.locator('h3').allTextContents()).toEqual(enDishes.map(({ name }) => name))
     for (const [index, dish] of enDishes.entries()) {
@@ -218,7 +218,7 @@ test.describe('首页推荐菜移至桌面端首屏以下 - E2E 验收测试', (
     await attachScreenshot(page, testInfo, 'english-desktop-1280x720')
 
     await page.setViewportSize({ width: 390, height: 844 })
-    await section.evaluate((node) => node.scrollIntoView())
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
     await expectFullyInViewport(cards.first(), page)
     await expectNoPageHorizontalOverflow(page)
