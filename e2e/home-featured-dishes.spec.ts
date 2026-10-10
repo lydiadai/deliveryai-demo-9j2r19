@@ -40,6 +40,16 @@ async function expectFullyInViewport(locator: Locator, page: Page) {
   expect(box.y + box.height).toBeLessThanOrEqual(viewport.height)
 }
 
+async function expectBelowViewport(locator: Locator, page: Page) {
+  const box = await locator.boundingBox()
+  const viewport = page.viewportSize()
+  expect(box).not.toBeNull()
+  expect(viewport).not.toBeNull()
+  if (!box || !viewport) return
+
+  expect(box.y).toBeGreaterThanOrEqual(viewport.height)
+}
+
 async function expectNoPageHorizontalOverflow(page: Page) {
   const { clientWidth, scrollWidth } = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -87,8 +97,8 @@ async function mockFeaturedProductIds(page: Page, ids: string[]) {
   })
 }
 
-test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
-  test('REQ-001: 中文推荐菜内容、顺序和字段正确', async ({ page }) => {
+test.describe('首页推荐菜移至桌面端首屏以下 - E2E 验收测试', () => {
+  test('REQ-002: 中文推荐菜内容、顺序和字段正确', async ({ page }) => {
     await openHome(page)
     const section = featuredSection(page)
     const cards = section.locator('article')
@@ -106,38 +116,60 @@ test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
     }
   })
 
-  test('REQ-002 / NFR-001: 1280x720 首屏完整展示三张推荐卡且桌台入口可操作', async ({ page }, testInfo) => {
+  test('REQ-001 / NFR-001: 1280x720 首屏不展示推荐菜且滚动后完整可见', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 1280, height: 720 })
     await openHome(page)
     const section = featuredSection(page)
     const cards = section.locator('article')
 
-    await expectFullyInViewport(page.getByRole('heading', { name: '今日推荐' }), page)
+    await expectBelowViewport(page.getByRole('heading', { name: '今日推荐' }), page)
     for (let index = 0; index < 3; index += 1) {
-      await expectFullyInViewport(cards.nth(index), page)
+      await expectBelowViewport(cards.nth(index), page)
     }
     await expectFullyInViewport(page.getByRole('button', { name: '快速进入 A08 桌' }), page)
     await expect(page.getByRole('button', { name: /B12/ })).toBeEnabled()
     await expectNoPageHorizontalOverflow(page)
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
-    await attachScreenshot(page, testInfo, 'desktop-1280x720-homepage')
+    await attachScreenshot(page, testInfo, 'desktop-1280x720-homepage-first-screen')
+
+    await section.scrollIntoViewIfNeeded()
+    await expectFullyInViewport(page.getByRole('heading', { name: '今日推荐' }), page)
+    for (let index = 0; index < 3; index += 1) {
+      await expectFullyInViewport(cards.nth(index), page)
+    }
+    await attachScreenshot(page, testInfo, 'desktop-1280x720-homepage-featured-dishes')
   })
 
-  test('REQ-002 / NFR-001: 390x844 首屏完整展示标题和首张卡且页面无横向溢出', async ({ page }, testInfo) => {
+  test('REQ-001: 1024px 临界宽度与老人模式均保持推荐菜在首屏以下', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 600 })
+    await openHome(page)
+    await expectBelowViewport(page.getByRole('heading', { name: '今日推荐' }), page)
+
+    const elderlyPage = await page.context().newPage()
+    await elderlyPage.setViewportSize({ width: 1024, height: 600 })
+    await openHome(elderlyPage, { elderly: true })
+    await expect(elderlyPage.locator('html')).toHaveClass(/elderly/)
+    await expectBelowViewport(elderlyPage.getByRole('heading', { name: '今日推荐' }), elderlyPage)
+    await elderlyPage.close()
+  })
+
+  test('REQ-003 / NFR-001: 390x844 推荐菜与桌台入口正常展示且页面无横向溢出', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await openHome(page)
     const section = featuredSection(page)
     const cards = section.locator('article')
 
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: '今日推荐' }), page)
     await expectFullyInViewport(cards.first(), page)
-    await expect(section.locator(':scope > div')).toHaveCSS('overflow-x', 'auto')
+    await expect(cards.first().locator('..')).toHaveCSS('overflow-x', 'auto')
     await expectNoPageHorizontalOverflow(page)
-    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
     await attachScreenshot(page, testInfo, 'mobile-390x844-homepage')
   })
 
-  test('REQ-003: 推荐卡片只读且点击后页面状态不变', async ({ page }) => {
+  test('REQ-002: 推荐卡片只读且点击后页面状态不变', async ({ page }) => {
     await openHome(page)
     const cards = featuredSection(page).locator('article')
     const initialUrl = page.url()
@@ -165,13 +197,15 @@ test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
     await expect(page.getByText('您在 A08 · 大厅')).toBeVisible()
   })
 
-  test('REQ-004 / NFR-005: 英文桌面与移动布局内容正确且无溢出', async ({ page }, testInfo) => {
+  test('REQ-001 / REQ-002 / NFR-002: 英文桌面首屏隐藏且滚动后内容正确', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 1280, height: 720 })
     await openHome(page, { language: 'en' })
     const section = featuredSection(page)
     const cards = section.locator('article')
 
-    await expect(page.getByRole('heading', { name: "Today's Picks" })).toBeVisible()
+    await expectBelowViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
+    await section.scrollIntoViewIfNeeded()
+    await expectFullyInViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
     expect(await cards.locator('h3').allTextContents()).toEqual(enDishes.map(({ name }) => name))
     for (const [index, dish] of enDishes.entries()) {
       const card = cards.nth(index)
@@ -184,13 +218,14 @@ test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
     await attachScreenshot(page, testInfo, 'english-desktop-1280x720')
 
     await page.setViewportSize({ width: 390, height: 844 })
+    await section.scrollIntoViewIfNeeded()
     await expectFullyInViewport(page.getByRole('heading', { name: "Today's Picks" }), page)
     await expectFullyInViewport(cards.first(), page)
     await expectNoPageHorizontalOverflow(page)
     await attachScreenshot(page, testInfo, 'english-mobile-390x844')
   })
 
-  test('REQ-004 / NFR-002: 图片 alt 本地化且只读卡片不进入 Tab 顺序', async ({ page }) => {
+  test('REQ-002 / NFR-002: 图片 alt 本地化且只读卡片不进入 Tab 顺序', async ({ page }) => {
     await openHome(page)
     const cards = featuredSection(page).locator('article')
 
@@ -226,7 +261,7 @@ test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
     await elderlyPage.close()
   })
 
-  test('REQ-001 / NFR-004: 无效推荐 ID 被跳过且有效项保持原顺序', async ({ page }) => {
+  test('REQ-002: 无效推荐 ID 被跳过且有效项保持原顺序', async ({ page }) => {
     await mockFeaturedProductIds(page, ['p1', 'missing-product', 'p3'])
     await openHome(page)
     const cards = featuredSection(page).locator('article')
@@ -235,7 +270,7 @@ test.describe('首页首屏推荐菜 - E2E 验收测试', () => {
     expect(await cards.locator('h3').allTextContents()).toEqual(['鎏金番茄鸳鸯锅', '琥珀嫩牛肉'])
   })
 
-  test('REQ-001 / NFR-004: 推荐 ID 全部无效时隐藏推荐区且桌台绑定可用', async ({ page }) => {
+  test('REQ-002: 推荐 ID 全部无效时隐藏推荐区且桌台绑定可用', async ({ page }) => {
     await mockFeaturedProductIds(page, ['missing-1', 'missing-2', 'missing-3'])
     await openHome(page)
 
