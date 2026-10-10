@@ -63,6 +63,9 @@ const resources = {
           window: '窗边',
         },
       },
+      home: {
+        featured_title: '今日推荐',
+      },
       welcome: {
         badge: '欢迎光临',
         title: '欢迎光临沸点！',
@@ -300,6 +303,9 @@ const resources = {
           room: 'Private Room',
           window: 'Window Seat',
         },
+      },
+      home: {
+        featured_title: "Today's Picks",
       },
       welcome: {
         badge: 'Welcome',

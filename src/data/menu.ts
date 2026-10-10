@@ -6,6 +6,8 @@ import type { Product } from '@/types'
 
 export const categories = ['menu.cat.recommend', 'menu.cat.broth', 'menu.cat.meat', 'menu.cat.seafood', 'menu.cat.veggie', 'menu.cat.staple']
 
+export const featuredProductIds = ['p1', 'p2', 'p3'] as const
+
 export const tableAreas: Record<string, string> = {
   'A08': 'bind.area.hall',
   'B12': 'bind.area.booth',
