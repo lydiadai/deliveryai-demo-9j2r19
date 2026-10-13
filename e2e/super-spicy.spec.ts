@@ -60,7 +60,7 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     await page.getByRole('button', { name: '我已了解，继续下单' }).click()
     await expect(page.getByText('风险提示')).not.toBeVisible()
     const superSpicyBtn = page.getByRole('button', { name: '超级辣' })
-    await expect(superSpicyBtn).toHaveClass(/border-chili-500/)
+    await expect(superSpicyBtn).toHaveClass(/border-brand-500/)
     await page.getByRole('button', { name: '加入本桌购物车' }).click()
     await expect(page.getByText('本桌购物车').first()).toBeVisible()
     await expect(page.getByText('超级辣').first()).toBeVisible()
@@ -71,14 +71,14 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     await goToBrothSpec(page, 0)
     await page.getByRole('button', { name: '中辣' }).click()
     const mediumBtn = page.getByRole('button', { name: '中辣' })
-    await expect(mediumBtn).toHaveClass(/border-chili-500/)
+    await expect(mediumBtn).toHaveClass(/border-brand-500/)
     await page.getByRole('button', { name: '超级辣' }).click()
     await expect(page.getByText('风险提示')).toBeVisible()
     await page.getByRole('button', { name: '重新选择' }).click()
     await expect(page.getByText('风险提示')).not.toBeVisible()
     const superSpicyBtn = page.getByRole('button', { name: '超级辣' })
-    await expect(superSpicyBtn).not.toHaveClass(/border-chili-500/)
-    await expect(mediumBtn).toHaveClass(/border-chili-500/)
+    await expect(superSpicyBtn).not.toHaveClass(/border-brand-500/)
+    await expect(mediumBtn).toHaveClass(/border-brand-500/)
   })
 
   test('REQ-004.2: 点击遮罩区域等同取消，恢复原选择状态', async ({ page }) => {
@@ -86,7 +86,7 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     // Select 微辣 first
     await page.getByRole('button', { name: '微辣' }).click()
     const mildBtn = page.getByRole('button', { name: '微辣' })
-    await expect(mildBtn).toHaveClass(/border-chili-500/)
+    await expect(mildBtn).toHaveClass(/border-brand-500/)
     // Click 超级辣
     await page.getByRole('button', { name: '超级辣' }).click()
     await expect(page.getByText('风险提示')).toBeVisible()
@@ -97,9 +97,9 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     // Dialog closed
     await expect(page.getByText('风险提示')).not.toBeVisible()
     // 微辣 still selected, 超级辣 not selected
-    await expect(mildBtn).toHaveClass(/border-chili-500/)
+    await expect(mildBtn).toHaveClass(/border-brand-500/)
     const superSpicyBtn = page.getByRole('button', { name: '超级辣' })
-    await expect(superSpicyBtn).not.toHaveClass(/border-chili-500/)
+    await expect(superSpicyBtn).not.toHaveClass(/border-brand-500/)
   })
 
   test('REQ-004.4: 此前未选任何辣度时取消，恢复为无辣度选中状态', async ({ page }) => {
@@ -109,9 +109,9 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     await page.getByRole('button', { name: '重新选择' }).click()
     await expect(page.getByText('风险提示')).not.toBeVisible()
     const mildBtn = page.getByRole('button', { name: '微辣' })
-    await expect(mildBtn).toHaveClass(/border-chili-500/)
+    await expect(mildBtn).toHaveClass(/border-brand-500/)
     const superSpicyBtn = page.getByRole('button', { name: '超级辣' })
-    await expect(superSpicyBtn).not.toHaveClass(/border-chili-500/)
+    await expect(superSpicyBtn).not.toHaveClass(/border-brand-500/)
   })
 
   test('REQ-005: 现有辣度选项选择和下单流程不受影响', async ({ page }) => {
@@ -119,7 +119,7 @@ test.describe('超级辣锅底选项 - E2E 验收测试', () => {
     await page.getByRole('button', { name: '重辣' }).click()
     await expect(page.getByText('风险提示')).not.toBeVisible()
     const heavyBtn = page.getByRole('button', { name: '重辣' })
-    await expect(heavyBtn).toHaveClass(/border-chili-500/)
+    await expect(heavyBtn).toHaveClass(/border-brand-500/)
     await page.getByRole('button', { name: '加入本桌购物车' }).click()
     await expect(page.getByText('本桌购物车').first()).toBeVisible()
     await expect(page.getByText('重辣').first()).toBeVisible()

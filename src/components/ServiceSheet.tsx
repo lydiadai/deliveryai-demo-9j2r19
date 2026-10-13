@@ -26,8 +26,8 @@ export function ServiceSheet({ open, requests, onOpenChange, onCall }: ServiceSh
         <p className="mt-2 text-sm text-charcoal-500">{t('service.desc')}</p>
         <div className="mt-5 grid grid-cols-2 gap-3">
           {services.map(({ key, icon: Icon }) => (
-            <button key={key} onClick={() => onCall(key)} className="rounded-2xl border border-charcoal-900/5 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-chili-500/30 hover:shadow-card">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-chili-50 text-chili-500"><Icon size={20} /></span>
+            <button key={key} onClick={() => onCall(key)} className="rounded-2xl border border-charcoal-900/5 bg-white p-4 text-left shadow-sm transition hover:-translate-y-1 hover:border-brand-500 hover:shadow-card">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-500"><Icon size={20} /></span>
               <p className="mt-3 font-bold text-charcoal-900">{t(`${key}.name`)}</p><p className="mt-1 text-xs leading-5 text-charcoal-500">{t(`${key}.desc`)}</p>
             </button>
           ))}
