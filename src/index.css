@@ -8,7 +8,7 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; min-height: 100vh; background: #fbf5ea; }
 button, input { font: inherit; }
-::selection { background: #ffddd8; color: #a9231a; }
+::selection { background: #dcfce7; color: #166534; }
 
 /* 老人模式全局基础：放大字号约 1.25 倍 */
 .elderly { font-size: 125%; }

@@ -16,7 +16,7 @@ export function WelcomeView({ table, onEnter }: WelcomeViewProps) {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-rice-100 paper-noise">
-      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-chili-100 blur-3xl" />
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-100 blur-3xl" />
       <div className="absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-amber-100 blur-3xl" />
 
       <div className="relative mx-auto w-full max-w-md px-5 py-10">
@@ -39,14 +39,14 @@ export function WelcomeView({ table, onEnter }: WelcomeViewProps) {
 
           {/* 问候语 */}
           <div className="px-6 py-8 text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-chili-500/20 bg-chili-50 px-3 py-1.5 text-xs font-bold text-chili-600">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand-700">
               <Sparkles size={13} /> {t('welcome.badge')}
             </div>
             <h1 className="text-3xl font-extrabold leading-tight text-charcoal-900 sm:text-4xl">
               {t('welcome.title')}
             </h1>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-base font-semibold text-charcoal-500">
-              <MapPin size={16} className="text-chili-500" />
+              <MapPin size={16} className="text-brand-500" />
               {t('welcome.you_at')} {tableLabel}
             </p>
           </div>

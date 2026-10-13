@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         rice: { 50: '#fffdf8', 100: '#fbf5ea', 200: '#f3e6d0' },
+        brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#16a34a', 600: '#15803d', 700: '#166534' },
         chili: { 50: '#fff1ef', 100: '#ffddd8', 500: '#e13b2b', 600: '#c92f21', 700: '#a9231a' },
         amber: { 100: '#fff2c7', 400: '#f5b83f', 500: '#e69b18' },
         charcoal: { 500: '#5f5b55', 700: '#34312d', 900: '#211f1c' },
