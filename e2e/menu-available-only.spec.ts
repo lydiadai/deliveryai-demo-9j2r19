@@ -69,13 +69,13 @@ test.describe('菜单页仅看可点菜品 - E2E 验收测试', () => {
 
     await page.getByRole('button', { name: '演示控制台', exact: true }).click()
     await page.getByRole('button', { name: '鎏金番茄鸳鸯锅', exact: true }).click()
-    await page.getByRole('button', { name: '完成', exact: true }).click()
+    await page.getByRole('button', { name: '完成设置', exact: true }).click()
     await expect(productCard(page, '鎏金番茄鸳鸯锅')).toHaveCount(0)
     await expect(toggle).toHaveAttribute('aria-pressed', 'true')
 
     await page.getByRole('button', { name: '演示控制台', exact: true }).click()
     await page.getByRole('button', { name: '鎏金番茄鸳鸯锅', exact: true }).click()
-    await page.getByRole('button', { name: '完成', exact: true }).click()
+    await page.getByRole('button', { name: '完成设置', exact: true }).click()
     await expect(productCard(page, '鎏金番茄鸳鸯锅')).toBeVisible()
   })
 
