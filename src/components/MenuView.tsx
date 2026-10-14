@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AlertTriangle, Check, Flame, Plus, Search, Sparkles, Users } from 'lucide-react'
+import { AlertTriangle, ArrowDownUp, Check, Flame, Plus, Search, Sparkles, Users } from 'lucide-react'
 import { categories, products } from '@/data/menu'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -13,11 +13,24 @@ interface MenuViewProps {
   onAdd: (item: CartItem) => void
 }
 
+const sortOptions = [
+  { value: 'default', label: 'menu.sort.default' },
+  { value: 'price-asc', label: 'menu.sort.price_asc' },
+  { value: 'price-desc', label: 'menu.sort.price_desc' },
+] as const
+
+type SortOption = (typeof sortOptions)[number]['value']
+
+function isSortOption(value: string): value is SortOption {
+  return sortOptions.some((option) => option.value === value)
+}
+
 export function MenuView({ diners, soldOut, onAdd }: MenuViewProps) {
   const { t } = useTranslation()
   const [category, setCategory] = useState('menu.cat.recommend')
   const [search, setSearch] = useState('')
   const [availableOnly, setAvailableOnly] = useState(false)
+  const [sort, setSort] = useState<string>('default')
   const [selected, setSelected] = useState<Product | null>(null)
   const [portion, setPortion] = useState('menu.option.full')
   const [flavor, setFlavor] = useState('')
@@ -42,19 +55,54 @@ export function MenuView({ diners, soldOut, onAdd }: MenuViewProps) {
     setShowRiskWarning(false)
   }
 
-  const visible = useMemo(() => products.filter((product) => {
-    const matchCategory = category === 'menu.cat.recommend' || product.category === category
-    const productName = t(product.name)
-    const productDesc = t(product.description)
-    const matchSearch = productName.includes(search) || productDesc.includes(search)
-    const matchAvailability = !availableOnly || !soldOut.includes(product.id)
-    return matchCategory && matchSearch && matchAvailability
-  }), [availableOnly, category, search, soldOut, t])
+  const { visible, effectiveSort } = useMemo(() => {
+    const filtered = products.filter((product) => {
+      const matchCategory = category === 'menu.cat.recommend' || product.category === category
+      const productName = t(product.name)
+      const productDesc = t(product.description)
+      const matchSearch = productName.includes(search) || productDesc.includes(search)
+      const matchAvailability = !availableOnly || !soldOut.includes(product.id)
+      return matchCategory && matchSearch && matchAvailability
+    })
+
+    const requestedSort = isSortOption(sort) ? sort : 'default'
+    const hasInvalidPrice = requestedSort !== 'default' && filtered.some((product) => !Number.isFinite(product.price))
+    const nextSort: SortOption = hasInvalidPrice ? 'default' : requestedSort
+    if (nextSort === 'default') return { visible: filtered, effectiveSort: nextSort }
+
+    const defaultIndexes = new Map(products.map((product, index) => [product.id, index]))
+    const direction = nextSort === 'price-asc' ? 1 : -1
+    return {
+      visible: [...filtered].sort((left, right) => (
+        direction * (left.price - right.price)
+        || (defaultIndexes.get(left.id) ?? 0) - (defaultIndexes.get(right.id) ?? 0)
+      )),
+      effectiveSort: nextSort,
+    }
+  }, [availableOnly, category, search, soldOut, sort, t])
+
+  useEffect(() => {
+    if (sort !== effectiveSort) setSort(effectiveSort)
+  }, [effectiveSort, sort])
 
   const clearFilters = () => {
     setCategory('menu.cat.recommend')
     setSearch('')
     setAvailableOnly(false)
+    setSort('default')
+  }
+
+  const selectSort = (nextSort: SortOption) => setSort(nextSort)
+
+  const handleSortKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, currentSort: SortOption) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return
+    event.preventDefault()
+    const currentIndex = sortOptions.findIndex((option) => option.value === currentSort)
+    const direction = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1
+    const nextIndex = (currentIndex + direction + sortOptions.length) % sortOptions.length
+    const nextSort = sortOptions[nextIndex].value
+    selectSort(nextSort)
+    requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(`[data-sort="${nextSort}"]`)?.focus())
   }
 
   const openSpec = (product: Product) => {
@@ -104,6 +152,33 @@ export function MenuView({ diners, soldOut, onAdd }: MenuViewProps) {
               <span className="block text-xs font-semibold opacity-70">{t(availableOnly ? 'menu.filter_on' : 'menu.filter_off')}</span>
             </span>
           </button>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+          <span id="menu-sort-label" className="flex items-center gap-2 text-xs font-extrabold text-charcoal-500">
+            <ArrowDownUp size={15} />{t('menu.sort.label')}
+          </span>
+          <div className="scrollbar-none min-w-0 max-w-full overflow-x-auto rounded-2xl" role="radiogroup" aria-labelledby="menu-sort-label">
+            <div className="grid min-w-[28rem] grid-cols-3 gap-1 rounded-2xl border border-charcoal-900/10 bg-white p-1 sm:min-w-0">
+              {sortOptions.map((option) => {
+                const checked = effectiveSort === option.value
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    tabIndex={checked ? 0 : -1}
+                    data-sort={option.value}
+                    onClick={() => selectSort(option.value)}
+                    onKeyDown={(event) => handleSortKeyDown(event, option.value)}
+                    className={`min-h-10 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-extrabold outline-none transition focus-visible:ring-4 focus-visible:ring-brand-500/25 ${checked ? 'border-brand-500/30 bg-brand-50 text-brand-700 shadow-sm' : 'border-transparent text-charcoal-500 hover:text-brand-700'}`}
+                  >
+                    {t(option.label)}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
         <div className="scrollbar-none mt-3 flex gap-2 overflow-x-auto pb-1">
           {categories.map((item) => <button type="button" key={item} aria-pressed={category === item} onClick={() => setCategory(item)} className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold outline-none transition focus-visible:ring-4 focus-visible:ring-brand-500/25 ${category === item ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-charcoal-500 hover:text-brand-700'}`}>{t(item)}</button>)}
