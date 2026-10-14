@@ -29,17 +29,17 @@ export function TopBar({ table, view, serviceCount, language, elderly, onToggleL
         {t('common.banner')}
       </div>
       <header className="sticky top-0 z-30 border-b border-charcoal-900/5 bg-rice-50/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 lg:px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 px-2 sm:gap-3 sm:px-4 lg:px-6">
           <button onClick={() => onView('menu')} className="flex items-center gap-2 text-left">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-lg font-black text-white shadow-md">{t('common.brand')}</span>
             <span className="hidden sm:block"><strong className="block leading-4 text-charcoal-900">{t('common.brand_name')}</strong><small className="text-charcoal-500">{t('common.subtitle')}</small></span>
           </button>
-          <span className="ml-1 flex items-center gap-1 rounded-full bg-rice-200 px-3 py-2 text-xs font-bold text-charcoal-700"><MapPin size={13} className="text-brand-500" />{tableLabel}</span>
+          <span className="ml-1 hidden items-center gap-1 rounded-full bg-rice-200 px-3 py-2 text-xs font-bold text-charcoal-700 sm:flex"><MapPin size={13} className="text-brand-500" />{tableLabel}</span>
           <nav className="ml-auto hidden items-center gap-1 md:flex">
             <Button variant="ghost" size="sm" className={view === 'menu' ? 'bg-brand-50 text-brand-700 hover:bg-brand-100' : undefined} onClick={() => onView('menu')}><Search size={16} />{t('common.nav_menu')}</Button>
             <Button variant="ghost" size="sm" className={view === 'order' ? 'bg-brand-50 text-brand-700 hover:bg-brand-100' : undefined} onClick={() => onView('order')}><ReceiptText size={16} />{t('common.nav_order')}</Button>
           </nav>
-          <Button variant="outline" size="icon" onClick={onService} className="relative" aria-label={t('common.aria_service')}>
+          <Button variant="outline" size="icon" onClick={onService} className="relative hidden md:inline-flex" aria-label={t('common.aria_service')}>
             <PhoneCall size={18} />{serviceCount > 0 && <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white bg-amber-400" />}
           </Button>
           <Dialog>
@@ -55,7 +55,7 @@ export function TopBar({ table, view, serviceCount, language, elderly, onToggleL
               </div>
             </DialogContent>
           </Dialog>
-          <Button variant="outline" size="icon" onClick={onConsole} aria-label={t('common.aria_console')}><LayoutDashboard size={18} /></Button>
+          <Button variant="outline" size="icon" onClick={onConsole} className="hidden md:inline-flex" aria-label={t('common.aria_console')}><LayoutDashboard size={18} /></Button>
           <Button variant="outline" size="icon" onClick={onToggleElderly} aria-label={elderly ? '切换至常规模式' : '切换至老人模式'}>
             <Accessibility size={18} className={elderly ? 'text-brand-600' : ''} />
           </Button>
